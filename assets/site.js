@@ -83,31 +83,34 @@
   // Read the live release channel when the browser allows it. The static page
   // remains correct if GitHub is unreachable or CORS is denied.
   const repo = 'shravan-kumar-nalacharla/agent-notch-releases';
-  const latestYml = `https://github.com/${repo}/releases/latest/download/latest.yml`;
-  const sums = `https://github.com/${repo}/releases/latest/download/SHA256SUMS.txt`;
+  const api = `https://api.github.com/repos/${repo}/releases/latest`;
   const formatBytes = value => {
     const bytes = Number(value);
     return Number.isFinite(bytes) && bytes > 0 ? `${(bytes / 1024 / 1024).toFixed(1)} MB` : '—';
   };
   async function releaseInfo() {
     try {
-      const text = await (await fetch(latestYml, { cache: 'no-store' })).text();
-      const version = /^version:\s*(.+)$/m.exec(text)?.[1]?.trim();
-      const size = /^\s+size:\s*(\d+)$/m.exec(text)?.[1];
+      const response = await fetch(api, { cache: 'no-store', headers: { Accept: 'application/vnd.github+json' } });
+      if (!response.ok) return;
+      const release = await response.json();
+      const version = String(release.tag_name || '').replace(/^v/, '');
       if (version) {
         const el = document.getElementById('latestVersion');
         if (el) el.textContent = version;
       }
+      const asset = (release.assets || []).find(item => item.name === 'Agent-Notch-Setup.exe')
+        || (release.assets || []).find(item => /^Agent-Notch-Setup-\d+\.\d+\.\d+\.exe$/.test(item.name));
       const sizeEl = document.getElementById('installerSize');
-      if (sizeEl) sizeEl.textContent = formatBytes(size);
-    } catch {}
-    try {
-      const text = await (await fetch(sums, { cache: 'no-store' })).text();
-      const first = /^([a-f0-9]{64})\s+(.+)$/m.exec(text);
+      if (sizeEl && asset) sizeEl.textContent = formatBytes(asset.size);
       const hashEl = document.getElementById('installerHash');
-      if (first && hashEl) hashEl.textContent = `${first[1].slice(0, 16)}…${first[1].slice(-12)}`;
+      if (hashEl) {
+        const digest = String(asset?.digest || '');
+        hashEl.textContent = digest.startsWith('sha256:')
+          ? `${digest.slice(7, 23)}…${digest.slice(-12)}`
+          : 'Open the release checksums';
+      }
       const download = document.getElementById('downloadCurrent');
-      if (first && download) download.title = `SHA-256 ${first[1]}`;
+      if (download && asset?.browser_download_url) download.href = asset.browser_download_url;
     } catch {}
   }
   releaseInfo();
