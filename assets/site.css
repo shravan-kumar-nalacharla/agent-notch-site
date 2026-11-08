@@ -207,7 +207,7 @@ section{position:relative}
 .install-card h3{font-size:18px}
 .version-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 0;border-bottom:1px solid var(--line-soft);font-size:12px;color:var(--muted)}
 .version-row strong{color:var(--text);font-size:13px}
-.version-pill{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;background:rgba(204,239,231,.1);color:var(--mint);border:1px solid rgba(204,239,231,.2);padding:4px 8px;border-radius:99px}
+.version-pill{display:inline-flex;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;background:rgba(204,239,231,.1);color:var(--mint);border:1px solid rgba(204,239,231,.2);padding:4px 8px;border-radius:99px}
 .hash{margin-top:16px;font:10.5px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;color:#8b97a2;overflow-wrap:anywhere}
 .hash a{color:#c6d1d8;text-decoration:underline;text-underline-offset:3px}
 .install-card .btn{width:100%;margin-top:18px}
